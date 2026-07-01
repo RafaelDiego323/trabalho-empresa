@@ -1,0 +1,146 @@
+CREATE DATABASE EcoStyle;
+use EcoStyle;
+
+CREATE TABLE Products (
+    ProductID INT AUTO_INCREMENT,
+    ProductName VARCHAR(100) NOT NULL,
+    ProductValor DECIMAL(30,38),
+   CONSTRAINT PK_Products PRIMARY KEY (ProductID)
+);
+
+CREATE TABLE Roupas (
+RoupasName varchar(250) NOT NULL,
+Cityproducingtown VARCHAR (300) NOT NULL,
+Caracteristicas varchar (200),
+  CONSTRAINT FK_Products FOREIGN KEY (ProductID)
+  );
+  
+  
+    Create table estoque (
+  Quantidade INT NOT NULL,
+  Qualidade Varchar (100)NOT NULL,
+    CONSTRAINT PK_estoque PRIMARY KEY (Qualidade)
+  );
+  
+  
+  CREATE TABLE Reciclados (
+  RecicladosID INT AUTO_INCREMENT,
+  Defeitos  INT NOT NULL,
+  CONSTRAINT FK_estoque FOREIGN KEY (Qualidade)
+  );
+  
+  CREATE TABLE ENTREGAS (
+  Distancia INT NOT NULL,
+  Valor DECIMAL (0,500),
+  DISTANCIA INT ,
+  );
+  
+  CREATE TABLE devoluçes (
+roupascomdefeitos varchar (200),
+tamanhoerrado varchar (200),
+ CONSTRAINT FK_clientes FOREIGN KEY (compra)
+ );
+ 
+ CREATE TABLE clientes(
+ compra DECIMAL (30,38),
+ devolução VARCHAR (100),
+ CONSTRAINT PK_clientes PRIMARY KEY (compra)
+ );
+ 
+
+
+INSERT INTO clientes (nome, email, telefone, nif, data_nascimento, ativo) VALUES
+('Mariana Costa', 'mariana.costa@email.com', '912345678', '234567890', '1992-04-15', 1),
+('João Pereira', 'joao.pereira@email.com', '913456789', '234567891', '1988-11-02', 1),
+('Beatriz Santos', 'beatriz.santos@email.com', '914567890', '234567892', '1995-07-23', 1),
+('Ricardo Almeida', 'ricardo.almeida@email.com', '915678901', '234567893', '1990-01-30', 1),
+('Sofia Rodrigues', 'sofia.rodrigues@email.com', '916789012', '234567894', '1998-09-12', 1);
+
+INSERT INTO enderecos (id_cliente, tipo, morada, cidade, codigo_postal, pais, principal) VALUES
+(1, 'entrega', 'Rua das Flores, 123', 'Lisboa', '1000-100', 'Portugal', 1),
+(2, 'entrega', 'Avenida da Liberdade, 45', 'Lisboa', '1250-096', 'Portugal', 1),
+(3, 'entrega', 'Rua do Comércio, 78', 'Porto', '4000-123', 'Portugal', 1),
+(4, 'entrega', 'Praça da República, 12', 'Coimbra', '3000-300', 'Portugal', 1),
+(5, 'entrega', 'Rua Nova, 56', 'Braga', '4700-000', 'Portugal', 1),
+(1, 'faturacao', 'Rua das Flores, 123', 'Lisboa', '1000-100', 'Portugal', 0);
+
+INSERT INTO categorias (nome, descricao) VALUES
+('T-shirts', 'T-shirts em algodão orgânico e reciclado'),
+('Calças', 'Calças em tecidos sustentáveis'),
+('Vestidos', 'Vestidos eco-friendly'),
+('Acessórios', 'Acessórios feitos de materiais reciclados'),
+('Casacos', 'Casacos e blusões com materiais reciclados');
+
+INSERT INTO fornecedores (nome_empresa, pais_origem, email_contacto, telefone, certificacao_ambiental, avaliacao_sustentabilidade, ativo) VALUES
+('GreenFiber Textiles', 'Portugal', 'contacto@greenfiber.pt', '211234567', 'GOTS', 9.2, 1),
+('ReciclaTex', 'Espanha', 'info@reciclatex.es', '341234567', 'GRS', 8.7, 1),
+('EcoThread Co.', 'Índia', 'sales@ecothread.in', '911234567', 'OEKO-TEX', 8.0, 1),
+('Nordic ReWool', 'Suécia', 'hello@nordicrewool.se', '461234567', 'GRS', 9.0, 1),
+('Fibra Verde Brasil', 'Brasil', 'contato@fibraverde.com.br', '551234567', 'OEKO-TEX', 7.8, 1);
+
+INSERT INTO materiais (id_fornecedor, nome, tipo_origem, percentual_reciclado, custo_unitario_kg, pegada_carbono_kg_co2) VALUES
+(1, 'Algodão orgânico reciclado', 'pós-consumo', 95.00, 4.50, 1.200),
+(2, 'PET reciclado (poliéster)', 'pós-consumo', 100.00, 3.20, 0.850),
+(3, 'Lã reciclada', 'pós-industrial', 80.00, 6.10, 1.500),
+(4, 'Lã merino reciclada', 'pós-consumo', 90.00, 7.30, 1.100),
+(5, 'Fibra de bambu reciclada', 'pós-industrial', 85.00, 3.90, 0.700),
+(2, 'Nylon reciclado (ECONYL)', 'pós-consumo', 100.00, 5.80, 0.950),
+(1, 'Linho orgânico', 'pós-industrial', 70.00, 5.20, 1.000);
+
+INSERT INTO produtos (id_categoria, nome, descricao, tamanho, cor, preco, stock, pegada_carbono_kg_co2, ativo) VALUES
+(1, 'T-shirt Básica Orgânica', 'T-shirt de algodão orgânico reciclado, corte unissexo', 'M', 'Branco', 19.90, 120, 2.100, 1),
+(1, 'T-shirt Estampada Eco', 'T-shirt com estampado à base de tintas naturais', 'S', 'Verde', 22.90, 85, 2.300, 1),
+(2, 'Calças Chino Sustentáveis', 'Calças chino em algodão reciclado e elastano', 'L', 'Bege', 45.00, 60, 3.800, 1),
+(2, 'Jeans Reciclado Slim', 'Jeans feito com denim reciclado pós-consumo', 'M', 'Azul', 59.90, 40, 4.200, 1),
+(3, 'Vestido Verão Linho', 'Vestido leve em linho orgânico', 'S', 'Amarelo', 39.90, 30, 2.900, 1),
+(4, 'Mochila ECONYL', 'Mochila feita com nylon reciclado ECONYL', 'Único', 'Preto', 34.90, 50, 2.000, 1),
+(5, 'Casaco Lã Reciclada', 'Casaco quente em lã merino reciclada', 'L', 'Cinza', 79.90, 25, 5.500, 1);
+
+INSERT INTO produto_material (id_produto, id_material, percentual_no_produto) VALUES
+(1, 1, 100.00),
+(2, 1, 90.00),
+(2, 7, 10.00),
+(3, 2, 60.00),
+(3, 1, 40.00),
+(4, 2, 100.00),
+(5, 7, 100.00),
+(6, 6, 100.00),
+(7, 4, 100.00);
+
+INSERT INTO transportadoras (nome, neutra_carbono, programa_compensacao, custo_medio_envio) VALUES
+('EcoDelivery Express', 1, 'Reflorestação na Amazónia', 4.90),
+('GreenLog Portugal', 1, 'Créditos de carbono certificados', 3.50),
+('CTT Standard', 0, NULL, 3.90),
+('BikeCargo Urbano', 1, 'Entregas 100% em bicicleta elétrica', 2.50);
+
+INSERT INTO pedidos (id_cliente, id_endereco, status, valor_total) VALUES
+(1, 1, 'entregue', 39.80),
+(2, 2, 'enviado', 45.00),
+(3, 3, 'pago', 79.90),
+(4, 4, 'em_preparacao', 94.80),
+(5, 5, 'cancelado', 22.90);
+
+INSERT INTO itens_pedido (id_pedido, id_produto, quantidade, preco_unitario) VALUES
+(1, 1, 2, 19.90),
+(2, 3, 1, 45.00),
+(3, 7, 1, 79.90),
+(4, 4, 1, 59.90),
+(4, 6, 1, 34.90),
+(5, 2, 1, 22.90);
+
+INSERT INTO entregas (id_pedido, id_transportadora, codigo_rastreio, data_envio, data_entrega_prevista, data_entrega_real, status_entrega, pegada_carbono_kg_co2, carbono_compensado_kg) VALUES
+(1, 1, 'ECO-PT-000123', '2026-06-20 10:00:00', '2026-06-23', '2026-06-22 15:30:00', 'entregue', 1.200, 1.200),
+(2, 2, 'GRN-PT-000456', '2026-06-27 09:00:00', '2026-06-30', NULL, 'a_caminho', 0.900, 0.900),
+(3, 4, 'BIKE-PT-000789', '2026-06-29 08:00:00', '2026-07-01', NULL, 'preparando', 0.300, 0.300),
+(4, 3, 'CTT-000321', NULL, '2026-07-05', NULL, 'preparando', 2.100, 0.000);
+
+INSERT INTO pagamentos (id_pedido, metodo, valor, status) VALUES
+(1, 'mbway', 39.80, 'aprovado'),
+(2, 'cartao_credito', 45.00, 'aprovado'),
+(3, 'paypal', 79.90, 'aprovado'),
+(4, 'cartao_credito', 94.80, 'aprovado'),
+(5, 'mbway', 22.90, 'reembolsado');
+
+INSERT INTO devolucoes (id_item, motivo, descricao, status, valor_reembolso, data_conclusao) VALUES
+(6, 'tamanho_incorreto', 'Cliente pediu tamanho S mas o corte ficou grande', 'reembolsada', 22.90, '2026-06-29 14:00:00'),
+(2, 'nao_gostei', 'Cor diferente do esperado', 'em_analise', NULL, NULL);
