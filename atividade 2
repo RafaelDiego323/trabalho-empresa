@@ -29,11 +29,12 @@ CONSTRAINT PK_históricomédico PRIMARY KEY (vacinas)
 );
 
 
-create table donosefaturação(
+create table donos(
 
-donos varchar(800) 
+donos varchar(800) ,
 cachorroid int AUTO_INCREMENT not null,
 valorapagar DECIMAL (50,90),
+CONSTRAINT PK_donos PRIMARY KEY (cachorroid)
 );
 
 
@@ -42,8 +43,34 @@ nomedomedico varchar (800),
 nomedocachorro varchar (100),
 raça varchar (50),
 peso int (50),
-
+idade int(30),
+CONSTRAINT PK_CorpoClínico PRIMARY KEY (nomedocachorro)
 );
+ 
+ create table money(
+faturamento DECIMAL (8,100),
+mediadodia varchar (400),
+mediadomês decimal(1000,1000000),
+mediadoano decimal(1000,1000000) not null,
+CONSTRAINT FK_históricomédico FOREIGN KEY (vacinas),
+CONSTRAINT FK_internamentos FOREIGN KEY (consultasid),
+CONSTRAINT FK_donos FOREIGN KEY (cachorroid),
+CONSTRAINT PK_money PRIMARY KEY (faturamento)
+);
+
+CREATE TABLE  gastos ( 
+inpostos int auto_increment not null,
+gastoscomremedios INT AUTO_INCREMENT not null,
+leaozinhodoinposto int auto_increment not null,
+CONSTRAINT FK_money FOREIGN KEY (faturamento),
+)
+
+create trigger tg_log_preco
+after update
+
+
+
+
 
 
 
@@ -144,5 +171,40 @@ INSERT INTO itens_fatura (id_fatura, id_hospedagem, descricao, quantidade, preco
 
 INSERT INTO pagamentos (id_fatura, metodo, valor, status) VALUES
 (1, 'mbway', 35.00, 'aprovado'),
-(2, 'cartao_credito', 145.00, 'aprovado');
+(2, 'cartao_credito', 145.00, 'aprovado');USE MedPet;
 
+-- CONSULTAS
+INSERT INTO consultas (consultasagendadas, nomedosmedicos, vagasdeconsultas) VALUES
+('2026-07-10 09:00', 'Dr. Pedro Martins', '5 vagas disponíveis'),
+('2026-07-10 14:00', 'Dra. Inês Rocha', '3 vagas disponíveis'),
+('2026-07-11 10:30', 'Dr. Tiago Nunes', '2 vagas disponíveis');
+
+-- INTERNAMENTOS
+INSERT INTO internamentos (consultasid, internados, agendamentodecirurgia, vagasabertas) VALUES
+(1, 'Thor - observação pós-vacinação', 0, 4),
+(2, 'Mia - reação alérgica grave', 0, 2),
+(3, 'Bela - pré-operatório de castração', 1, 1);
+
+-- HISTORICOMEDICO
+INSERT INTO historicomedico (consultasid, listadeconsultas, vacinas, alergias, doencas) VALUES
+(1, 'Check-up anual, vacinação', 'Antirrábica, V10', 'Frango', 'Nenhuma'),
+(2, 'Consulta de emergência por dermatite', 'Tríplice Felina', 'Penicilina', 'Dermatite alérgica'),
+(3, 'Avaliação pré-cirúrgica', 'V10', 'Nenhuma', 'Nenhuma');
+
+-- DONOS
+INSERT INTO donos (donos, valorapagar) VALUES
+('Ana Ferreira', 35.00),
+('Miguel Sousa', 145.00),
+('Catarina Lima', 90.00);
+
+-- CORPOCLINICO
+INSERT INTO corpoclinico (nomedomedico, nomedocachorro, raca, peso, idade) VALUES
+('Dr. Pedro Martins', 'Thor', 'Labrador Retriever', 28, 4),
+('Dra. Inês Rocha', 'Mia', 'Mini Lop', 4, 5),
+('Dr. Tiago Nunes', 'Bela', 'SRD', 12, 3);
+
+-- MONEY
+INSERT INTO money (consultasid, cachorroid, vacinas, faturamento, mediadodia, mediadomes, mediadoano) VALUES
+(1, 1, 'Antirrábica, V10', 35.00, '35.00', 1050.00, 12600.00),
+(2, 2, 'Tríplice Felina', 145.00, '145.00', 4350.00, 52200.00),
+(3, 3, 'V10', 90.00, '90.00', 2700.00, 32400.00);
