@@ -1,0 +1,148 @@
+CREATE DATABASE MedPet;
+use MedPet;
+
+
+create table  consultas(
+consultasID int not null ,
+consultasagendadas varchar (100),
+nomedosmedicos varchar (800),
+vagasdeconsultas varchar (800),
+CONSTRAINT PK_consultas PRIMARY KEY (consultasID)
+);
+
+
+create table internamentos(
+internados varchar(800),
+agendamentodecirurgia int ,
+vagasabertas int not null,
+CONSTRAINT FK_internamentos FOREIGN KEY (consultasid)
+);
+
+
+create table históricomédico(
+
+listadeconsultas varchar(800),
+vacinas varchar (800),
+alergias varchar (800),
+doencas varchar (800),
+CONSTRAINT PK_históricomédico PRIMARY KEY (vacinas)
+);
+
+
+create table donosefaturação(
+
+donos varchar(800) 
+cachorroid int AUTO_INCREMENT not null,
+valorapagar DECIMAL (50,90),
+);
+
+
+create table CorpoClínico(
+nomedomedico varchar (800),
+nomedocachorro varchar (100),
+raça varchar (50),
+peso int (50),
+
+);
+
+
+
+
+
+DELIMITER //
+
+CREATE PROCEDURE sp_sleyerpoint(
+    IN p_ProductID VARCHAR(100)
+)
+
+BEGIN
+    SELECT 
+      consultasid,consultasagendadas,nomedosmedicos,vagasdeconsultas,listadeconsultas,vacinas,alergias,doencas  STATUS 
+    FROM consultasid_consultasagendadas_nomedosmedicos
+    INNER JOIN vagasdeconsultas_listadeconsultas_vacinas ON consultasid_consultasagendadas_nomedosmedicos.vagasdeconsultas=vagasdeconsultas_listadeconsultas_vacinas_alergias_doencas
+    WHERE consultasid=c_consultasid;
+END //
+
+INSERT INTO racas (id_especie, nome) VALUES
+(1, 'Labrador Retriever'), (1, 'Bulldog Francês'), (1, 'SRD (Sem Raça Definida)'),
+(2, 'Siamês'), (2, 'Persa'), (2, 'SRD (Sem Raça Definida)'),
+(3, 'Calopsita'), (4, 'Mini Lop');
+
+INSERT INTO donos (nome, email, telefone, nif, morada, cidade, codigo_postal) VALUES
+('Ana Ferreira', 'ana.ferreira@email.com', '917654321', '234000001', 'Rua A, 10', 'Lisboa', '1000-001'),
+('Miguel Sousa', 'miguel.sousa@email.com', '918765432', '234000002', 'Rua B, 22', 'Porto', '4000-002'),
+('Catarina Lima', 'catarina.lima@email.com', '919876543', '234000003', 'Rua C, 35', 'Braga', '4700-003');
+
+INSERT INTO animais (id_dono, id_raca, nome, sexo, data_nascimento, peso_kg, cor, esterilizado, microchip) VALUES
+(1, 1, 'Thor', 'macho', '2021-03-10', 28.5, 'Dourado', 1, 'PT-000111222'),
+(2, 4, 'Mia', 'femea', '2020-07-22', 3.8, 'Cinza', 1, 'PT-000333444'),
+(3, 3, 'Bela', 'femea', '2022-01-05', 12.0, 'Preto e branco', 0, 'PT-000555666');
+
+INSERT INTO alergias (id_animal, substancia, gravidade, reacao_observada, data_diagnostico) VALUES
+(1, 'Frango', 'moderada', 'Dermatite e coceira excessiva', '2023-05-14'),
+(2, 'Penicilina', 'grave', 'Reação anafilática leve', '2022-11-02');
+
+INSERT INTO veterinarios (nome, cedula_profissional, especialidade, email, telefone) VALUES
+('Dr. Pedro Martins', 'CRMV-1234', 'Clínica Geral', 'pedro.martins@medpet.pt', '210111222'),
+('Dra. Inês Rocha', 'CRMV-5678', 'Cirurgia', 'ines.rocha@medpet.pt', '210222333'),
+('Dr. Tiago Nunes', 'CRMV-9012', 'Dermatologia', 'tiago.nunes@medpet.pt', '210333444');
+
+INSERT INTO vacinas (nome, fabricante, id_especie, validade_meses) VALUES
+('Antirrábica', 'Zoetis', 1, 12),
+('V10', 'MSD', 1, 12),
+('Tríplice Felina', 'Boehringer', 2, 12);
+
+INSERT INTO vacinas_aplicadas (id_animal, id_vacina, id_veterinario, data_aplicacao, data_proxima_dose, lote) VALUES
+(1, 1, 1, '2026-01-15', '2027-01-15', 'LT-8821'),
+(1, 2, 1, '2026-01-15', '2027-01-15', 'LT-4432'),
+(2, 3, 3, '2026-02-20', '2027-02-20', 'LT-1290');
+
+INSERT INTO consultas (id_animal, id_veterinario, data_hora, tipo, motivo, diagnostico, tratamento, peso_registado_kg, status, valor) VALUES
+(1, 1, '2026-06-10 09:30:00', 'rotina', 'Check-up anual', 'Animal saudável', 'Nenhum', 28.5, 'concluida', 35.00),
+(2, 3, '2026-06-15 14:00:00', 'emergencia', 'Coceira intensa e vermelhidão na pele', 'Dermatite alérgica', 'Antialérgico e shampoo medicinal', 3.9, 'concluida', 55.00),
+(3, 2, '2026-07-05 10:00:00', 'rotina', 'Avaliação pré-cirúrgica', NULL, NULL, 12.2, 'agendada', 40.00);
+
+INSERT INTO prescricoes (id_consulta, medicamento, dosagem, frequencia, duracao_dias, instrucoes) VALUES
+(2, 'Apoquel 16mg', '1 comprimido', '1x ao dia', 14, 'Administrar com alimento');
+
+INSERT INTO quartos (codigo, finalidade, tamanho, climatizado, valor_diaria) VALUES
+('INT-01', 'internamento', 'medio', 1, 25.00),
+('INT-02', 'internamento', 'grande', 1, 35.00),
+('HOT-01', 'hotel', 'medio', 1, 18.00),
+('HOT-02', 'hotel', 'pequeno', 1, 14.00);
+
+INSERT INTO internamentos (id_animal, id_quarto, id_veterinario_responsavel, data_entrada, data_saida_prevista, motivo, status) VALUES
+(2, 1, 3, '2026-06-15 15:00:00', '2026-06-17 12:00:00', 'Observação por reação alérgica grave', 'alta');
+
+INSERT INTO evolucao_clinica (id_internamento, temperatura_c, frequencia_cardiaca, frequencia_respiratoria, observacoes, id_veterinario) VALUES
+(1, 38.5, 110, 24, 'Animal estável, sem novos sinais de reação', 3),
+(1, 38.2, 105, 22, 'Melhora significativa da pele, alta prevista', 3);
+
+INSERT INTO hospedagens (id_animal, id_quarto, data_checkin, data_checkout_prevista, status, valor_total) VALUES
+(3, 3, '2026-07-20 10:00:00', '2026-07-25 10:00:00', 'reservado', 90.00);
+
+INSERT INTO servicos (nome, categoria, preco, duracao_estimada_min) VALUES
+('Consulta de rotina', 'consulta', 35.00, 30),
+('Consulta de emergência', 'consulta', 55.00, 45),
+('Raio-X', 'exame', 45.00, 20),
+('Cirurgia de castração', 'cirurgia', 120.00, 90),
+('Diária hotel', 'hotel', 18.00, NULL),
+('Banho e tosa', 'estetica', 25.00, 60);
+
+INSERT INTO faturas (id_dono, id_animal, valor_total, status) VALUES
+(1, 1, 35.00, 'paga'),
+(2, 2, 145.00, 'paga'),
+(3, 3, 90.00, 'pendente');
+
+INSERT INTO itens_fatura (id_fatura, id_servico, id_consulta, descricao, quantidade, preco_unitario) VALUES
+(1, 1, 1, 'Consulta de rotina - Thor', 1, 35.00),
+(2, 2, 2, 'Consulta de emergência - Mia', 1, 55.00),
+(2, 5, NULL, 'Internamento (2 diárias) - Mia', 2, 25.00);
+
+INSERT INTO itens_fatura (id_fatura, id_hospedagem, descricao, quantidade, preco_unitario) VALUES
+(3, 1, 'Hospedagem 5 diárias - Bela', 5, 18.00);
+
+INSERT INTO pagamentos (id_fatura, metodo, valor, status) VALUES
+(1, 'mbway', 35.00, 'aprovado'),
+(2, 'cartao_credito', 145.00, 'aprovado');
+
