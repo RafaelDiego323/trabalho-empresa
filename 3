@@ -1,0 +1,194 @@
+create database BiblioTech;
+USE BiblioTech ;
+
+
+CREATE table Empréstimosdelivros (
+atrazados decimal (10,200),
+emdai int not null,
+pagas int not null,
+livrosid int auto_increment not null,
+constraint pk_Empréstimos primary key (livrosid)
+);
+
+create table Empréstimosfísicos (
+valor int not null,
+tempo varchar (100),
+constraint fk_Empréstimosdelivros foreign key (livrosid)
+);
+
+create table multas (
+tenpodeatrazo int not null auto_increment,
+taxa int auto_increment,
+);
+ create table gestãodeexemplares(
+ estoque int not null,
+   constraint fk_Empréstimosdelivros foreign key (livrosid)
+   );
+   
+   create table estados (
+   lojasdoestados varchar(200),
+   encomendadolivro int not null,
+      constraint fk_Empréstimosdelivros foreign key (livrosid)
+   );
+   
+   
+create table conservação(
+danosnolivros varchar(100),
+qualidade int not null,
+tempodolivro varchar(100),
+);
+
+create table autores(
+autorname varchar(100),
+idadedilivro int not null,
+raridadedolivro varchar(50),
+);
+
+INSERT INTO `Empréstimosdelivros` (`atrazados`, `emdai`, `pagas`) VALUES
+(0, 7, 1),
+(2, 15, 0),
+(1, 10, 1),
+(4, 20, 0),
+(0, 30, 1),
+(3, 12, 0),
+(5, 18, 0),
+(0, 25, 1),
+(2, 8, 1),
+(1, 14, 0),
+(0, 9, 1),
+(6, 22, 0),
+(3, 16, 0),
+(0, 11, 1),
+(4, 19, 0),
+(1, 6, 1),
+(2, 13, 0),
+(0, 28, 1),
+(5, 17, 0),
+(1, 21, 1);
+
+INSERT INTO `Empréstimosfísicos` (`valor`, `tempo`) VALUES
+(10, '7 dias'),
+(15, '15 dias'),
+(20, '30 dias'),
+(12, '10 dias'),
+(18, '20 dias'),
+(25, '45 dias'),
+(8, '5 dias'),
+(30, '60 dias'),
+(14, '12 dias'),
+(22, '25 dias'),
+(16, '18 dias'),
+(11, '8 dias'),
+(24, '40 dias'),
+(9, '6 dias'),
+(19, '22 dias'),
+(13, '14 dias'),
+(27, '50 dias'),
+(7, '4 dias'),
+(21, '28 dias'),
+(17, '19 dias');
+INSERT INTO `multas` (`taxa`) VALUES
+(5),
+(10),
+(15),
+(20),
+(25),
+(30),
+(35),
+(40),
+(12),
+(18),
+(8),
+(22),
+(28),
+(14),
+(32),
+(6),
+(24),
+(16),
+(38),
+(45);
+INSERT INTO `gestãodeexemplares` (`estoque`) VALUES
+(12),
+(8),
+(20),
+(5),
+(14),
+(30),
+(3),
+(17),
+(25),
+(10),
+(6),
+(19),
+(9),
+(22),
+(11),
+(4),
+(27),
+(15),
+(7),
+(18);
+INSERT INTO `estados` (`lojasdoestados`, `encomendadolivro`) VALUES
+('Disponível', 3),
+('Emprestado', 2),
+('Reservado', 5),
+('Em manutenção', 1),
+('Em trânsito', 6),
+('Estoque baixo', 2),
+('Disponível', 8),
+('Reservado', 4),
+('Emprestado', 1),
+('Disponível', 7),
+('Em manutenção', 3),
+('Em trânsito', 5),
+('Estoque baixo', 1),
+('Disponível', 9),
+('Reservado', 2),
+('Emprestado', 6),
+('Disponível', 4),
+('Em manutenção', 2),
+('Em trânsito', 3),
+('Disponível', 10);
+INSERT INTO `conservação` (`danosnolivros`, `qualidade`, `tempodolivro`) VALUES
+('Sem danos', 10, 'Novo'),
+('Capa amassada', 7, 'Usado'),
+('Folhas marcadas', 6, 'Usado'),
+('Rasgo na lombada', 4, 'Antigo'),
+('Excelente estado', 9, 'Novo'),
+('Leves manchas', 8, 'Seminovo'),
+('Página solta', 5, 'Usado'),
+('Muito conservado', 10, 'Novo'),
+('Arranhões na capa', 7, 'Usado'),
+('Página rasgada', 3, 'Antigo'),
+('Miolo firme', 9, 'Novo'),
+('Capa desbotada', 6, 'Seminovo'),
+('Seminovo', 8, 'Seminovo'),
+('Encadernação boa', 9, 'Novo'),
+('Marcas de uso', 5, 'Usado'),
+('Poucos danos', 8, 'Seminovo'),
+('Folhas amareladas', 4, 'Antigo'),
+('Excelente conservação', 10, 'Novo'),
+('Pequeno desgaste', 7, 'Usado'),
+('Ótimo estado', 9, 'Novo');
+INSERT INTO `autores` (`autorname`, `idadedilivro`, `raridadedolivro`) VALUES
+('Machado de Assis', 130, 'Raro'),
+('J. K. Rowling', 25, 'Comum'),
+('George Orwell', 76, 'Raro'),
+('Clarice Lispector', 100, 'Raro'),
+('José Saramago', 40, 'Comum'),
+('Stephen King', 50, 'Comum'),
+('Lima Barreto', 110, 'Raro'),
+('Ariano Suassuna', 90, 'Raro'),
+('Monteiro Lobato', 105, 'Raro'),
+('Paulo Coelho', 37, 'Comum'),
+('Cecília Meireles', 80, 'Raro'),
+('Carlos Drummond de Andrade', 120, 'Raro'),
+('H. G. Wells', 160, 'Raro'),
+('Júlio Verne', 145, 'Raro'),
+('Agatha Christie', 100, 'Raro'),
+('Erico Verissimo', 95, 'Comum'),
+('Mia Couto', 35, 'Comum'),
+('Italo Calvino', 70, 'Comum'),
+('Fernando Pessoa', 140, 'Raro'),
+('Gabriel García Márquez', 60, 'Raro');
