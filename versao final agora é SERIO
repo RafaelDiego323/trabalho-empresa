@@ -1,0 +1,294 @@
+CREATE DATABASE IF NOT EXISTS LibraryTech
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_general_ci;
+ 
+USE LibraryTech;
+ 
+ 
+CREATE TABLE BookLoans (
+    book_id     INT AUTO_INCREMENT NOT NULL,
+    overdue     DECIMAL(10,2) NOT NULL DEFAULT 0,   -- fixed: DECIMAL(10,200) was invalid
+    loan_days   INT NOT NULL,
+    paid        TINYINT(1) NOT NULL,
+    CONSTRAINT pk_book_loans PRIMARY KEY (book_id)
+);
+ 
+ 
+CREATE TABLE PhysicalLoans (
+    id        INT AUTO_INCREMENT PRIMARY KEY,
+    book_id   INT NOT NULL,
+    value     INT NOT NULL,
+    loan_date DATE NOT NULL,
+    CONSTRAINT fk_physical_loans_books
+        FOREIGN KEY (book_id) REFERENCES BookLoans(book_id)
+);
+ 
+ 
+ 
+CREATE TABLE CopyManagement (
+    id        INT AUTO_INCREMENT PRIMARY KEY,
+    book_id   INT NOT NULL,
+    stock     INT NOT NULL,
+    CONSTRAINT fk_copy_management_books
+        FOREIGN KEY (book_id) REFERENCES BookLoans(book_id)
+);
+ 
+ 
+CREATE TABLE Status (
+    id                 INT AUTO_INCREMENT PRIMARY KEY,
+    book_id            INT NOT NULL,
+    store_location      VARCHAR(200),
+    book_order_quantity INT NOT NULL,
+    CONSTRAINT fk_status_books
+        FOREIGN KEY (book_id) REFERENCES BookLoans(book_id)
+);
+ 
+ 
+CREATE TABLE Conservation (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    book_id         INT NOT NULL,
+    book_damage     VARCHAR(100),
+    quality         INT NOT NULL,
+    book_condition  VARCHAR(100),
+    CONSTRAINT fk_conservation_books
+        FOREIGN KEY (book_id) REFERENCES BookLoans(book_id)
+);
+ 
+ 
+CREATE TABLE Authors (
+    id             INT AUTO_INCREMENT PRIMARY KEY,
+    book_id        INT NOT NULL,
+    author_name    VARCHAR(100),
+    book_age       INT NOT NULL,
+    book_rarity    VARCHAR(50),
+    CONSTRAINT fk_authors_books
+        FOREIGN KEY (book_id) REFERENCES BookLoans(book_id)
+);
+ 
+CREATE TABLE Fines (
+    fine_id     INT NOT NULL AUTO_INCREMENT,
+    book_id     INT NOT NULL,
+    delay_time  INT NOT NULL,
+    fee         INT NOT NULL,
+    new_column  INT,
+    CONSTRAINT pk_fines PRIMARY KEY (fine_id),
+    CONSTRAINT fk_fines_books
+        FOREIGN KEY (book_id) REFERENCES BookLoans(book_id)
+);
+ 
+INSERT INTO BookLoans (overdue, loan_days, paid) VALUES
+(0, 7, 1),
+(2, 15, 0),
+(1, 10, 1),
+(4, 20, 0),
+(0, 30, 1),
+(3, 12, 0),
+(5, 18, 0),
+(0, 25, 1),
+(2, 8, 1),
+(1, 14, 0),
+(0, 9, 1),
+(6, 22, 0),
+(3, 16, 0),
+(0, 11, 1),
+(4, 19, 0),
+(1, 6, 1),
+(2, 13, 0),
+(0, 28, 1),
+(5, 17, 0),
+(1, 21, 1);
+ 
+-- NOTE: loan_date is DATE type but the original values below are text like '7 dias'.
+-- These need to be valid dates (e.g. '2026-01-07') or the INSERT will fail/truncate.
+-- Kept here translated as-is to match the original structure; adjust values before running.
+INSERT INTO PhysicalLoans (book_id, value, loan_date) VALUES
+(1, 10, '2026-01-07'),
+(2, 15, '2026-01-15'),
+(3, 20, '2026-01-30'),
+(4, 12, '2026-01-10'),
+(5, 18, '2026-01-20'),
+(6, 25, '2026-02-14'),
+(7, 8, '2026-01-05'),
+(8, 30, '2026-03-01'),
+(9, 14, '2026-01-12'),
+(10, 22, '2026-01-25'),
+(11, 16, '2026-01-18'),
+(12, 11, '2026-01-08'),
+(13, 24, '2026-02-09'),
+(14, 9, '2026-01-06'),
+(15, 19, '2026-01-22'),
+(16, 13, '2026-01-14'),
+(17, 27, '2026-02-19'),
+(18, 7, '2026-01-04'),
+(19, 21, '2026-01-28'),
+(20, 17, '2026-01-19');
+ 
+INSERT INTO Fines (book_id, delay_time, fee) VALUES
+(1, 2, 5),
+(2, 3, 10),
+(3, 5, 15),
+(4, 7, 20),
+(5, 8, 25),
+(6, 10, 30),
+(7, 12, 35),
+(8, 13, 40),
+(9, 4, 12),
+(10, 6, 18),
+(11, 3, 8),
+(12, 7, 22),
+(13, 9, 28),
+(14, 5, 14),
+(15, 11, 32),
+(16, 2, 6),
+(17, 8, 24),
+(18, 5, 16),
+(19, 13, 38),
+(20, 15, 45);
+ 
+INSERT INTO CopyManagement (book_id, stock) VALUES
+(1, 12),
+(2, 8),
+(3, 20),
+(4, 5),
+(5, 14),
+(6, 30),
+(7, 3),
+(8, 17),
+(9, 25),
+(10, 10),
+(11, 6),
+(12, 19),
+(13, 9),
+(14, 22),
+(15, 11),
+(16, 4),
+(17, 27),
+(18, 15),
+(19, 7),
+(20, 18);
+ 
+INSERT INTO Status (book_id, store_location, book_order_quantity) VALUES
+(1, 'Available', 3),
+(2, 'Borrowed', 2),
+(3, 'Reserved', 5),
+(4, 'Under maintenance', 1),
+(5, 'In transit', 6),
+(6, 'Low stock', 2),
+(7, 'Available', 8),
+(8, 'Reserved', 4),
+(9, 'Borrowed', 1),
+(10, 'Available', 7),
+(11, 'Under maintenance', 3),
+(12, 'In transit', 5),
+(13, 'Low stock', 1),
+(14, 'Available', 9),
+(15, 'Reserved', 2),
+(16, 'Borrowed', 6),
+(17, 'Available', 4),
+(18, 'Under maintenance', 2),
+(19, 'In transit', 3),
+(20, 'Available', 10);
+ 
+INSERT INTO Conservation (book_id, book_damage, quality, book_condition) VALUES
+(1, 'No damage', 10, 'New'),
+(2, 'Dented cover', 7, 'Used'),
+(3, 'Marked pages', 6, 'Used'),
+(4, 'Torn spine', 4, 'Old'),
+(5, 'Excellent condition', 9, 'New'),
+(6, 'Light stains', 8, 'Like new'),
+(7, 'Loose page', 5, 'Used'),
+(8, 'Well preserved', 10, 'New'),
+(9, 'Scratches on cover', 7, 'Used'),
+(10, 'Torn page', 3, 'Old'),
+(11, 'Firm binding', 9, 'New'),
+(12, 'Faded cover', 6, 'Like new'),
+(13, 'Like new', 8, 'Like new'),
+(14, 'Good binding', 9, 'New'),
+(15, 'Signs of use', 5, 'Used'),
+(16, 'Minor damage', 8, 'Like new'),
+(17, 'Yellowed pages', 4, 'Old'),
+(18, 'Excellent preservation', 10, 'New'),
+(19, 'Slight wear', 7, 'Used'),
+(20, 'Great condition', 9, 'New');
+ 
+INSERT INTO Authors (book_id, author_name, book_age, book_rarity) VALUES
+(1, 'Machado de Assis', 130, 'Rare'),
+(2, 'J. K. Rowling', 25, 'Common'),
+(3, 'George Orwell', 76, 'Rare'),
+(4, 'Clarice Lispector', 100, 'Rare'),
+(5, 'José Saramago', 40, 'Common'),
+(6, 'Stephen King', 50, 'Common'),
+(7, 'Lima Barreto', 110, 'Rare'),
+(8, 'Ariano Suassuna', 90, 'Rare'),
+(9, 'Monteiro Lobato', 105, 'Rare'),
+(10, 'Paulo Coelho', 37, 'Common'),
+(11, 'Cecília Meireles', 80, 'Rare'),
+(12, 'Carlos Drummond de Andrade', 120, 'Rare'),
+(13, 'H. G. Wells', 160, 'Rare'),
+(14, 'Júlio Verne', 145, 'Rare'),
+(18, 'Italo Calvino', 70, 'Common'),
+(15, 'Agatha Christie', 100, 'Rare'),
+(16, 'Erico Verissimo', 95, 'Common'),
+(17, 'Mia Couto', 35, 'Common'),
+(19, 'Fernando Pessoa', 140, 'Rare'),
+(20, 'Gabriel García Márquez', 60, 'Rare');
+ 
+ 
+CREATE TABLE IF NOT EXISTS FinesLog (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    time_id      INT NOT NULL,
+    old_time     INT,
+    new_time     INT,
+    change_date  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+ 
+ 
+ 
+DROP TRIGGER IF EXISTS update_fines_insert;
+DROP TRIGGER IF EXISTS update_fines_update;
+ 
+DELIMITER $$
+ 
+-- Logs the fine as soon as it is created (no "old time" exists yet)
+CREATE TRIGGER update_fines_insert
+AFTER INSERT ON Fines
+FOR EACH ROW
+BEGIN
+    INSERT INTO FinesLog (time_id, old_time, new_time)
+    VALUES (NEW.fine_id, NULL, NEW.delay_time);
+END$$
+ 
+-- Logs the change only if the delay time actually changed
+CREATE TRIGGER update_fines_update
+AFTER UPDATE ON Fines
+FOR EACH ROW
+BEGIN
+    IF OLD.delay_time <> NEW.delay_time THEN
+        INSERT INTO FinesLog (time_id, old_time, new_time)
+        VALUES (OLD.fine_id, OLD.delay_time, NEW.delay_time);
+    END IF;
+END$$
+ 
+DELIMITER ;
+ 
+ 
+ 
+ 
+ALTER TABLE PhysicalLoans
+ADD COLUMN delivery_fee_calculation INT;
+ 
+ALTER TABLE PhysicalLoans
+ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'pending';
+ 
+ALTER TABLE Conservation
+MODIFY COLUMN book_damage VARCHAR(200);
+ 
+ALTER TABLE Status
+RENAME TO BookStatus;
+ 
+ALTER TABLE Fines
+ADD CONSTRAINT fk_fines_status
+FOREIGN KEY (book_id) REFERENCES BookStatus (book_id);
+ 
+ALTER TABLE Fines
+ADD INDEX idx_book_id (book_id);
