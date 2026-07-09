@@ -1,0 +1,227 @@
+CREATE DATABASE MedPet;
+CREATE DATABASE MedPet;
+USE MedPet;
+
+
+CREATE TABLE appointments(
+appointment_id INT NOT NULL,
+scheduled_appointments VARCHAR(100),
+doctor_names VARCHAR(800),
+available_slots VARCHAR(800),
+CONSTRAINT PK_appointments PRIMARY KEY (appointment_id)
+);
+
+
+CREATE TABLE hospitalizations(
+hospitalized_patients VARCHAR(800),
+surgery_scheduled INT,
+open_slots INT NOT NULL,
+CONSTRAINT FK_hospitalizations FOREIGN KEY (appointment_id)
+);
+
+
+CREATE TABLE medical_history(
+
+appointment_list VARCHAR(800),
+vaccines VARCHAR(800),
+allergies VARCHAR(800),
+diseases VARCHAR(800),
+CONSTRAINT PK_medical_history PRIMARY KEY (vaccines)
+);
+
+
+CREATE TABLE owners(
+
+owner_name VARCHAR(800),
+dog_id INT AUTO_INCREMENT NOT NULL,
+amount_due DECIMAL(50,90),
+CONSTRAINT PK_owners PRIMARY KEY (dog_id)
+);
+
+
+CREATE TABLE MedicalStaff(
+doctor_name VARCHAR(800),
+dog_name VARCHAR(100),
+breed VARCHAR(50),
+weight INT(50),
+age INT(30),
+CONSTRAINT PK_MedicalStaff PRIMARY KEY (dog_name)
+);
+
+CREATE TABLE revenue(
+revenue_amount DECIMAL(8,100),
+daily_average VARCHAR(400),
+monthly_average DECIMAL(1000,1000000),
+yearly_average DECIMAL(1000,1000000) NOT NULL,
+CONSTRAINT FK_medical_history FOREIGN KEY (vaccines),
+CONSTRAINT FK_hospitalizations FOREIGN KEY (appointment_id),
+CONSTRAINT FK_owners FOREIGN KEY (dog_id),
+CONSTRAINT PK_revenue PRIMARY KEY (revenue_amount)
+);
+
+CREATE TABLE expenses (
+taxes INT AUTO_INCREMENT NOT NULL,
+medication_expenses INT AUTO_INCREMENT NOT NULL,
+tax_authority_share INT AUTO_INCREMENT NOT NULL,
+CONSTRAINT FK_revenue FOREIGN KEY (revenue_amount),
+)
+
+CREATE TRIGGER tg_log_price
+AFTER UPDATE
+
+
+DELIMITER //
+
+CREATE PROCEDURE sp_sleyerpoint(
+    IN p_ProductID VARCHAR(100)
+)
+
+BEGIN
+    SELECT 
+      appointment_id, scheduled_appointments, doctor_names, available_slots, appointment_list, vaccines, allergies, diseases  STATUS 
+    FROM appointment_id_scheduled_appointments_doctor_names
+    INNER JOIN available_slots_appointment_list_vaccines ON appointment_id_scheduled_appointments_doctor_names.available_slots=available_slots_appointment_list_vaccines_allergies_diseases
+    WHERE appointment_id=c_appointment_id;
+END 
+
+ALTER TABLE expenses 
+ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'pending';
+
+ALTER TABLE tax
+MODIFY COLUMN tax VARCHAR(200);
+
+ALTER TABLE tax
+RENAME TO negative_balance
+
+ALTER TABLE expenses
+ADD CONSTRAINT fk_revenue
+FOREIGN KEY (revenue_amount) REFERENCES  (revenue);
+
+ALTER TABLE expenses
+ADD INDEX idx_revenue_amount (revenue_amount);
+
+
+
+
+
+
+INSERT INTO breeds (species_id, name) VALUES
+(1, 'Labrador Retriever'), (1, 'French Bulldog'), (1, 'Mixed Breed'),
+(2, 'Siamese'), (2, 'Persian'), (2, 'Mixed Breed'),
+(3, 'Cockatiel'), (4, 'Mini Lop');
+
+INSERT INTO owners (name, email, phone, tax_id, address, city, postal_code) VALUES
+('Ana Ferreira', 'ana.ferreira@email.com', '917654321', '234000001', 'Street A, 10', 'Lisbon', '1000-001'),
+('Miguel Sousa', 'miguel.sousa@email.com', '918765432', '234000002', 'Street B, 22', 'Porto', '4000-002'),
+('Catarina Lima', 'catarina.lima@email.com', '919876543', '234000003', 'Street C, 35', 'Braga', '4700-003');
+
+INSERT INTO animals (owner_id, breed_id, name, sex, birth_date, weight_kg, color, neutered, microchip) VALUES
+(1, 1, 'Thor', 'male', '2021-03-10', 28.5, 'Golden', 1, 'PT-000111222'),
+(2, 4, 'Mia', 'female', '2020-07-22', 3.8, 'Gray', 1, 'PT-000333444'),
+(3, 3, 'Bela', 'female', '2022-01-05', 12.0, 'Black and white', 0, 'PT-000555666');
+
+INSERT INTO allergies (animal_id, substance, severity, observed_reaction, diagnosis_date) VALUES
+(1, 'Chicken', 'moderate', 'Dermatitis and excessive itching', '2023-05-14'),
+(2, 'Penicillin', 'severe', 'Mild anaphylactic reaction', '2022-11-02');
+
+INSERT INTO veterinarians (name, license_number, specialty, email, phone) VALUES
+('Dr. Pedro Martins', 'CRMV-1234', 'General Practice', 'pedro.martins@medpet.pt', '210111222'),
+('Dr. Inês Rocha', 'CRMV-5678', 'Surgery', 'ines.rocha@medpet.pt', '210222333'),
+('Dr. Tiago Nunes', 'CRMV-9012', 'Dermatology', 'tiago.nunes@medpet.pt', '210333444');
+
+INSERT INTO vaccines (name, manufacturer, species_id, validity_months) VALUES
+('Rabies', 'Zoetis', 1, 12),
+('V10', 'MSD', 1, 12),
+('Feline Triple', 'Boehringer', 2, 12);
+
+INSERT INTO administered_vaccines (animal_id, vaccine_id, veterinarian_id, application_date, next_dose_date, batch) VALUES
+(1, 1, 1, '2026-01-15', '2027-01-15', 'LT-8821'),
+(1, 2, 1, '2026-01-15', '2027-01-15', 'LT-4432'),
+(2, 3, 3, '2026-02-20', '2027-02-20', 'LT-1290');
+
+INSERT INTO appointments (animal_id, veterinarian_id, date_time, type, reason, diagnosis, treatment, recorded_weight_kg, status, amount) VALUES
+(1, 1, '2026-06-10 09:30:00', 'routine', 'Annual check-up', 'Healthy animal', 'None', 28.5, 'completed', 35.00),
+(2, 3, '2026-06-15 14:00:00', 'emergency', 'Intense itching and skin redness', 'Allergic dermatitis', 'Antihistamine and medicated shampoo', 3.9, 'completed', 55.00),
+(3, 2, '2026-07-05 10:00:00', 'routine', 'Pre-surgical evaluation', NULL, NULL, 12.2, 'scheduled', 40.00);
+
+INSERT INTO prescriptions (appointment_id, medication, dosage, frequency, duration_days, instructions) VALUES
+(2, 'Apoquel 16mg', '1 tablet', 'once a day', 14, 'Administer with food');
+
+INSERT INTO rooms (code, purpose, size, air_conditioned, daily_rate) VALUES
+('INT-01', 'hospitalization', 'medium', 1, 25.00),
+('INT-02', 'hospitalization', 'large', 1, 35.00),
+('HOT-01', 'hotel', 'medium', 1, 18.00),
+('HOT-02', 'hotel', 'small', 1, 14.00);
+
+INSERT INTO hospitalizations (animal_id, room_id, responsible_veterinarian_id, admission_date, expected_discharge_date, reason, status) VALUES
+(2, 1, 3, '2026-06-15 15:00:00', '2026-06-17 12:00:00', 'Observation for severe allergic reaction', 'discharged');
+
+INSERT INTO clinical_progress (hospitalization_id, temperature_c, heart_rate, respiratory_rate, notes, veterinarian_id) VALUES
+(1, 38.5, 110, 24, 'Animal stable, no new signs of reaction', 3),
+(1, 38.2, 105, 22, 'Significant improvement of the skin, discharge expected', 3);
+
+INSERT INTO boarding (animal_id, room_id, checkin_date, expected_checkout_date, status, total_amount) VALUES
+(3, 3, '2026-07-20 10:00:00', '2026-07-25 10:00:00', 'reserved', 90.00);
+
+INSERT INTO services (name, category, price, estimated_duration_min) VALUES
+('Routine appointment', 'appointment', 35.00, 30),
+('Emergency appointment', 'appointment', 55.00, 45),
+('X-Ray', 'exam', 45.00, 20),
+('Neutering surgery', 'surgery', 120.00, 90),
+('Hotel daily rate', 'hotel', 18.00, NULL),
+('Bath and grooming', 'grooming', 25.00, 60);
+
+INSERT INTO invoices (owner_id, animal_id, total_amount, status) VALUES
+(1, 1, 35.00, 'paid'),
+(2, 2, 145.00, 'paid'),
+(3, 3, 90.00, 'pending');
+
+INSERT INTO invoice_items (invoice_id, service_id, appointment_id, description, quantity, unit_price) VALUES
+(1, 1, 1, 'Routine appointment - Thor', 1, 35.00),
+(2, 2, 2, 'Emergency appointment - Mia', 1, 55.00),
+(2, 5, NULL, 'Hospitalization (2 days) - Mia', 2, 25.00);
+
+INSERT INTO invoice_items (invoice_id, boarding_id, description, quantity, unit_price) VALUES
+(3, 1, 'Boarding 5 days - Bela', 5, 18.00);
+
+INSERT INTO payments (invoice_id, method, amount, status) VALUES
+(1, 'mbway', 35.00, 'approved'),
+(2, 'credit_card', 145.00, 'approved');
+
+USE MedPet;
+
+-- APPOINTMENTS
+INSERT INTO appointments (scheduled_appointments, doctor_names, available_slots) VALUES
+('2026-07-10 09:00', 'Dr. Pedro Martins', '5 slots available'),
+('2026-07-10 14:00', 'Dr. Inês Rocha', '3 slots available'),
+('2026-07-11 10:30', 'Dr. Tiago Nunes', '2 slots available');
+
+-- HOSPITALIZATIONS
+INSERT INTO hospitalizations (appointment_id, hospitalized_patients, surgery_scheduled, open_slots) VALUES
+(1, 'Thor - post-vaccination observation', 0, 4),
+(2, 'Mia - severe allergic reaction', 0, 2),
+(3, 'Bela - pre-operative for neutering', 1, 1);
+
+-- MEDICAL_HISTORY
+INSERT INTO medical_history (appointment_id, appointment_list, vaccines, allergies, diseases) VALUES
+(1, 'Annual check-up, vaccination', 'Rabies, V10', 'Chicken', 'None'),
+(2, 'Emergency appointment for dermatitis', 'Feline Triple', 'Penicillin', 'Allergic dermatitis'),
+(3, 'Pre-surgical evaluation', 'V10', 'None', 'None');
+
+-- OWNERS
+INSERT INTO owners (owner_name, amount_due) VALUES
+('Ana Ferreira', 35.00),
+('Miguel Sousa', 145.00),
+('Catarina Lima', 90.00);
+
+-- MEDICALSTAFF
+INSERT INTO medical_staff (doctor_name, dog_name, breed, weight, age) VALUES
+('Dr. Pedro Martins', 'Thor', 'Labrador Retriever', 28, 4),
+('Dr. Inês Rocha', 'Mia', 'Mini Lop', 4, 5),
+('Dr. Tiago Nunes', 'Bela', 'Mixed Breed', 12, 3);
+
+-- REVENUE
+INSERT INTO revenue (appointment_id, dog_id, vaccines, revenue_amount, daily_average, monthly_average, yearly_average) VALUES
+(1, 1, 'Rabies, V10', 35.00, '35.00', 1050.00, 12600.00),
+(2, 2, 'Feline Triple', 145.00, '145.00', 4350.00, 52200.00),
+(3, 3, 'V10', 90.00, '90.00', 2700.00, 32400.00);
