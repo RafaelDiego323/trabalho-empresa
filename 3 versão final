@@ -1,0 +1,291 @@
+CREATE DATABASE IF NOT EXISTS BiblioTech
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_general_ci;
+ 
+USE BiblioTech;
+ 
+
+CREATE TABLE Emprestimosdelivros (
+    livrosid   INT AUTO_INCREMENT NOT NULL,
+    atrazados  DECIMAL(10,2) NOT NULL DEFAULT 0,   -- corrigido: DECIMAL(10,200) era inválido
+    emdai      INT NOT NULL,
+    pagas      TINYINT(1) NOT NULL,
+    CONSTRAINT pk_Emprestimos PRIMARY KEY (livrosid)
+);
+ 
+
+CREATE TABLE Emprestimosfisicos (
+    id        INT AUTO_INCREMENT PRIMARY KEY,
+    livrosid  INT NOT NULL,
+    valor     INT NOT NULL,
+    tempo     date not null,
+    CONSTRAINT fk_Emprestimosfisicos_livros
+        FOREIGN KEY (livrosid) REFERENCES Emprestimosdelivros(livrosid)
+);
+ 
+
+
+
+CREATE TABLE gestaodeexemplares (
+    id        INT AUTO_INCREMENT PRIMARY KEY,
+    livrosid  INT NOT NULL,
+    estoque   INT NOT NULL,
+    CONSTRAINT fk_gestao_livros
+        FOREIGN KEY (livrosid) REFERENCES Emprestimosdelivros(livrosid)
+);
+ 
+
+CREATE TABLE estados (
+    id                INT AUTO_INCREMENT PRIMARY KEY,
+    livrosid          INT NOT NULL,
+    lojasdoestados    VARCHAR(200),
+    encomendadolivro  INT NOT NULL,
+    CONSTRAINT fk_estados_livros
+        FOREIGN KEY (livrosid) REFERENCES Emprestimosdelivros(livrosid)
+);
+ 
+
+CREATE TABLE conservacao (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    livrosid        INT NOT NULL,
+    danosnolivros   VARCHAR(100),
+    qualidade       INT NOT NULL,
+    tempodolivro    VARCHAR(100),
+    CONSTRAINT fk_conservacao_livros
+        FOREIGN KEY (livrosid) REFERENCES Emprestimosdelivros(livrosid)
+);
+ 
+
+CREATE TABLE autores (
+    id                INT AUTO_INCREMENT PRIMARY KEY,
+    livrosid          INT NOT NULL,
+    autorname         VARCHAR(100),
+    idadedilivro      INT NOT NULL,
+    raridadedolivro   VARCHAR(50),
+    CONSTRAINT fk_autores_livros
+        FOREIGN KEY (livrosid) REFERENCES Emprestimosdelivros(livrosid)
+);
+ 
+CREATE TABLE multas (
+    valoradicionalid INT NOT NULL AUTO_INCREMENT,
+    livrosid         INT NOT NULL,
+    tempodeatrazo    INT NOT NULL,
+    taxa             INT NOT NULL,
+    nova_coluna      INT,
+    CONSTRAINT pk_multas PRIMARY KEY (valoradicionalid),
+    CONSTRAINT fk_multas_livros
+        FOREIGN KEY (livrosid) REFERENCES Emprestimosdelivros(livrosid)
+);
+INSERT INTO Emprestimosdelivros (atrazados, emdai, pagas) VALUES
+(0, 7, 1),
+(2, 15, 0),
+(1, 10, 1),
+(4, 20, 0),
+(0, 30, 1),
+(3, 12, 0),
+(5, 18, 0),
+(0, 25, 1),
+(2, 8, 1),
+(1, 14, 0),
+(0, 9, 1),
+(6, 22, 0),
+(3, 16, 0),
+(0, 11, 1),
+(4, 19, 0),
+(1, 6, 1),
+(2, 13, 0),
+(0, 28, 1),
+(5, 17, 0),
+(1, 21, 1);
+ 
+INSERT INTO Emprestimosfisicos (livrosid, valor, tempo) VALUES
+(1, 10, '7 dias'),
+(2, 15, '15 dias'),
+(3, 20, '30 dias'),
+(4, 12, '10 dias'),
+(5, 18, '20 dias'),
+(6, 25, '45 dias'),
+(7, 8, '5 dias'),
+(8, 30, '60 dias'),
+(9, 14, '12 dias'),
+(10, 22, '25 dias'),
+(11, 16, '18 dias'),
+(12, 11, '8 dias'),
+(13, 24, '40 dias'),
+(14, 9, '6 dias'),
+(15, 19, '22 dias'),
+(16, 13, '14 dias'),
+(17, 27, '50 dias'),
+(18, 7, '4 dias'),
+(19, 21, '28 dias'),
+(20, 17, '19 dias');
+ 
+INSERT INTO multas (livrosid, tempodeatrazo, taxa) VALUES
+(1, 2, 5),
+(2, 3, 10),
+(3, 5, 15),
+(4, 7, 20),
+(5, 8, 25),
+(6, 10, 30),
+(7, 12, 35),
+(8, 13, 40),
+(9, 4, 12),
+(10, 6, 18),
+(11, 3, 8),
+(12, 7, 22),
+(13, 9, 28),
+(14, 5, 14),
+(15, 11, 32),
+(16, 2, 6),
+(17, 8, 24),
+(18, 5, 16),
+(19, 13, 38),
+(20, 15, 45);
+ 
+INSERT INTO gestaodeexemplares (livrosid, estoque) VALUES
+(1, 12),
+(2, 8),
+(3, 20),
+(4, 5),
+(5, 14),
+(6, 30),
+(7, 3),
+(8, 17),
+(9, 25),
+(10, 10),
+(11, 6),
+(12, 19),
+(13, 9),
+(14, 22),
+(15, 11),
+(16, 4),
+(17, 27),
+(18, 15),
+(19, 7),
+(20, 18);
+ 
+INSERT INTO estados (livrosid, lojasdoestados, encomendadolivro) VALUES
+(1, 'Disponível', 3),
+(2, 'Emprestado', 2),
+(3, 'Reservado', 5),
+(4, 'Em manutenção', 1),
+(5, 'Em trânsito', 6),
+(6, 'Estoque baixo', 2),
+(7, 'Disponível', 8),
+(8, 'Reservado', 4),
+(9, 'Emprestado', 1),
+(10, 'Disponível', 7),
+(11, 'Em manutenção', 3),
+(12, 'Em trânsito', 5),
+(13, 'Estoque baixo', 1),
+(14, 'Disponível', 9),
+(15, 'Reservado', 2),
+(16, 'Emprestado', 6),
+(17, 'Disponível', 4),
+(18, 'Em manutenção', 2),
+(19, 'Em trânsito', 3),
+(20, 'Disponível', 10);
+ 
+INSERT INTO conservacao (livrosid, danosnolivros, qualidade, tempodolivro) VALUES
+(1, 'Sem danos', 10, 'Novo'),
+(2, 'Capa amassada', 7, 'Usado'),
+(3, 'Folhas marcadas', 6, 'Usado'),
+(4, 'Rasgo na lombada', 4, 'Antigo'),
+(5, 'Excelente estado', 9, 'Novo'),
+(6, 'Leves manchas', 8, 'Seminovo'),
+(7, 'Página solta', 5, 'Usado'),
+(8, 'Muito conservado', 10, 'Novo'),
+(9, 'Arranhões na capa', 7, 'Usado'),
+(10, 'Página rasgada', 3, 'Antigo'),
+(11, 'Miolo firme', 9, 'Novo'),
+(12, 'Capa desbotada', 6, 'Seminovo'),
+(13, 'Seminovo', 8, 'Seminovo'),
+(14, 'Encadernação boa', 9, 'Novo'),
+(15, 'Marcas de uso', 5, 'Usado'),
+(16, 'Poucos danos', 8, 'Seminovo'),
+(17, 'Folhas amareladas', 4, 'Antigo'),
+(18, 'Excelente conservação', 10, 'Novo'),
+(19, 'Pequeno desgaste', 7, 'Usado'),
+(20, 'Ótimo estado', 9, 'Novo');
+ 
+INSERT INTO autores (livrosid, autorname, idadedilivro, raridadedolivro) VALUES
+(1, 'Machado de Assis', 130, 'Raro'),
+(2, 'J. K. Rowling', 25, 'Comum'),
+(3, 'George Orwell', 76, 'Raro'),
+(4, 'Clarice Lispector', 100, 'Raro'),
+(5, 'José Saramago', 40, 'Comum'),
+(6, 'Stephen King', 50, 'Comum'),
+(7, 'Lima Barreto', 110, 'Raro'),
+(8, 'Ariano Suassuna', 90, 'Raro'),
+(9, 'Monteiro Lobato', 105, 'Raro'),
+(10, 'Paulo Coelho', 37, 'Comum'),
+(11, 'Cecília Meireles', 80, 'Raro'),
+(12, 'Carlos Drummond de Andrade', 120, 'Raro'),
+(13, 'H. G. Wells', 160, 'Raro'),
+(14, 'Júlio Verne', 145, 'Raro'),
+(18, 'Italo Calvino', 70, 'Comum'),
+(15, 'Agatha Christie', 100, 'Raro'),
+(16, 'Erico Verissimo', 95, 'Comum'),
+(17, 'Mia Couto', 35, 'Comum'),
+(19, 'Fernando Pessoa', 140, 'Raro'),
+(20, 'Gabriel García Márquez', 60, 'Raro');
+
+
+CREATE TABLE IF NOT EXISTS log_multas (
+    id             INT AUTO_INCREMENT PRIMARY KEY,
+    id_tempo       INT NOT NULL,
+    tempo_antigo   INT,
+    tempo_novo     INT,
+    data_alteracao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+DROP TRIGGER IF EXISTS atualiza_multas_insert;
+DROP TRIGGER IF EXISTS atualiza_multas_update;
+
+DELIMITER $$
+
+-- Registra a multa assim que ela é criada (não existe "tempo antigo" ainda)
+CREATE TRIGGER atualiza_multas_insert
+AFTER INSERT ON multas
+FOR EACH ROW
+BEGIN
+    INSERT INTO log_multas (id_tempo, tempo_antigo, tempo_novo)
+    VALUES (NEW.valoradicionalid, NULL, NEW.tempodeatrazo);
+END$$
+
+-- Registra a alteração apenas se o tempo de atraso realmente mudou
+CREATE TRIGGER atualiza_multas_update
+AFTER UPDATE ON multas
+FOR EACH ROW
+BEGIN
+    IF OLD.tempodeatrazo <> NEW.tempodeatrazo THEN
+        INSERT INTO log_multas (id_tempo, tempo_antigo, tempo_novo)
+        VALUES (OLD.valoradicionalid, OLD.tempodeatrazo, NEW.tempodeatrazo);
+    END IF;
+END$$
+
+DELIMITER ;
+
+
+
+
+ALTER TABLE Emprestimosfisicos
+ADD COLUMN calculodetaxadeentrega INT;
+
+ALTER TABLE Emprestimosfisicos
+ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'pendente';
+
+ALTER TABLE conservacao
+MODIFY COLUMN danosnolivros VARCHAR(200);
+
+ALTER TABLE estados
+RENAME TO status_livros;
+
+ALTER TABLE multas
+ADD CONSTRAINT fk_multas_estados
+FOREIGN KEY (livrosid) REFERENCES status_livros (livrosid);
+
+ALTER TABLE multas
+ADD INDEX idx_livrosid (livrosid);
