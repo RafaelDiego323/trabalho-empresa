@@ -1,0 +1,410 @@
+CREATE DATABASE IF NOT EXISTS EcoStyle;
+USE EcoStyle;
+-- =====================================================
+-- CORE TABLES
+-- =====================================================
+CREATE TABLE categories (
+  category_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  description VARCHAR(255)
+) ENGINE=InnoDB;
+CREATE TABLE suppliers (
+  supplier_id INT AUTO_INCREMENT PRIMARY KEY,
+  company_name VARCHAR(150) NOT NULL,
+  country_of_origin VARCHAR(100) NOT NULL,
+  contact_email VARCHAR(150) NOT NULL,
+  phone VARCHAR(30),
+  environmental_certification VARCHAR(100),
+  sustainability_rating DECIMAL(3,1) DEFAULT 0.0,
+  active TINYINT(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB;
+CREATE TABLE materials (
+  material_id INT AUTO_INCREMENT PRIMARY KEY,
+  supplier_id INT NOT NULL,
+  name VARCHAR(150) NOT NULL,
+  origin_type VARCHAR(80),
+  recycled_percentage DECIMAL(5,2) DEFAULT 0.00,
+  unit_cost_per_kg DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  carbon_footprint_kg_co2 DECIMAL(10,3) NOT NULL DEFAULT 0.000,
+  CONSTRAINT fk_materials_suppliers
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id)
+) ENGINE=InnoDB;
+CREATE TABLE products (
+  product_id INT AUTO_INCREMENT PRIMARY KEY,
+  category_id INT NOT NULL,
+  name VARCHAR(150) NOT NULL,
+  description VARCHAR(255),
+  size VARCHAR(20),
+  color VARCHAR(50),
+  price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  stock INT NOT NULL DEFAULT 0,
+  carbon_footprint_kg_co2 DECIMAL(10,3) NOT NULL DEFAULT 0.000,
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  CONSTRAINT fk_products_categories
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+) ENGINE=InnoDB;
+CREATE TABLE product_material (
+  product_id INT NOT NULL,
+  material_id INT NOT NULL,
+  percentage_in_product DECIMAL(5,2) NOT NULL,
+  PRIMARY KEY (product_id, material_id),
+  CONSTRAINT fk_product_material_product
+    FOREIGN KEY (product_id) REFERENCES products(product_id),
+  CONSTRAINT fk_product_material_material
+    FOREIGN KEY (material_id) REFERENCES materials(material_id)
+) ENGINE=InnoDB;
+CREATE TABLE clothing (
+  clothing_id INT AUTO_INCREMENT PRIMARY KEY,
+  product_id INT NOT NULL,
+  clothing_name VARCHAR(250) NOT NULL,
+  production_city VARCHAR(300) NOT NULL,
+  characteristics VARCHAR(200),
+  CONSTRAINT fk_clothing_products
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+) ENGINE=InnoDB;
+CREATE TABLE stock_status (
+  quality VARCHAR(100) PRIMARY KEY,
+  quantity INT NOT NULL
+) ENGINE=InnoDB;
+CREATE TABLE recycled_items (
+  recycled_id INT AUTO_INCREMENT PRIMARY KEY,
+  defects INT NOT NULL,
+  quality_label VARCHAR(100)
+) ENGINE=InnoDB;
+CREATE TABLE customers (
+  customer_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(150) NOT NULL,
+  phone VARCHAR(20),
+  nif VARCHAR(20),
+  birth_date DATE,
+  active TINYINT(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB;
+CREATE TABLE addresses (
+  address_id INT AUTO_INCREMENT PRIMARY KEY,
+  customer_id INT NOT NULL,
+  address_type ENUM('shipping','billing') NOT NULL,
+  street VARCHAR(255) NOT NULL,
+  city VARCHAR(100) NOT NULL,
+  postal_code VARCHAR(20) NOT NULL,
+  country VARCHAR(100) NOT NULL,
+  is_primary TINYINT(1) NOT NULL DEFAULT 0,
+  CONSTRAINT fk_addresses_customers
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+) ENGINE=InnoDB;
+CREATE TABLE carriers (
+  carrier_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  carbon_neutral TINYINT(1) NOT NULL DEFAULT 0,
+  compensation_program VARCHAR(255),
+  average_shipping_cost DECIMAL(10,2) NOT NULL DEFAULT 0.00
+) ENGINE=InnoDB;
+CREATE TABLE orders (
+  order_id INT AUTO_INCREMENT PRIMARY KEY,
+  customer_id INT NOT NULL,
+  address_id INT NOT NULL,
+  status VARCHAR(50) NOT NULL,
+  total_value DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  CONSTRAINT fk_orders_customers
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+  CONSTRAINT fk_orders_addresses
+    FOREIGN KEY (address_id) REFERENCES addresses(address_id)
+) ENGINE=InnoDB;
+CREATE TABLE order_items (
+  order_item_id INT AUTO_INCREMENT PRIMARY KEY,
+  order_id INT NOT NULL,
+  product_id INT NOT NULL,
+  quantity INT NOT NULL,
+  unit_price DECIMAL(10,2) NOT NULL,
+  CONSTRAINT fk_order_items_orders
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+  CONSTRAINT fk_order_items_products
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+) ENGINE=InnoDB;
+CREATE TABLE deliveries (
+  delivery_id INT AUTO_INCREMENT PRIMARY KEY,
+  order_id INT NOT NULL,
+  carrier_id INT NOT NULL,
+  tracking_code VARCHAR(80) NOT NULL,
+  shipping_date DATETIME NULL,
+  expected_delivery_date DATE NULL,
+  actual_delivery_date DATETIME NULL,
+  delivery_status VARCHAR(50) NOT NULL,
+  carbon_footprint_kg_co2 DECIMAL(10,3) NOT NULL DEFAULT 0.000,
+  carbon_compensated_kg DECIMAL(10,3) NOT NULL DEFAULT 0.000,
+  CONSTRAINT fk_deliveries_orders
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+  CONSTRAINT fk_deliveries_carriers
+    FOREIGN KEY (carrier_id) REFERENCES carriers(carrier_id)
+) ENGINE=InnoDB;
+CREATE TABLE payments (
+  payment_id INT AUTO_INCREMENT PRIMARY KEY,
+  order_id INT NOT NULL,
+  method VARCHAR(50) NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  status VARCHAR(50) NOT NULL,
+  CONSTRAINT fk_payments_orders
+    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+) ENGINE=InnoDB;
+CREATE TABLE returns_table (
+  return_id INT AUTO_INCREMENT PRIMARY KEY,
+  order_item_id INT NOT NULL,
+  reason VARCHAR(100) NOT NULL,
+  description VARCHAR(255),
+  status VARCHAR(50) NOT NULL,
+  refund_amount DECIMAL(10,2) NULL,
+  resolved_at DATETIME NULL,
+  CONSTRAINT fk_returns_order_items
+    FOREIGN KEY (order_item_id) REFERENCES order_items(order_item_id)
+) ENGINE=InnoDB;
+-- =====================================================
+-- EXTRA TABLES BASED ON THE ORIGINAL IDEA
+-- =====================================================
+CREATE TABLE loan_records (
+  loan_id INT AUTO_INCREMENT PRIMARY KEY,
+  overdue_days INT NOT NULL DEFAULT 0,
+  days_in_use INT NOT NULL DEFAULT 0,
+  paid TINYINT(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB;
+CREATE TABLE physical_loans (
+  physical_loan_id INT AUTO_INCREMENT PRIMARY KEY,
+  value DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  duration VARCHAR(100) NOT NULL
+) ENGINE=InnoDB;
+CREATE TABLE fines (
+  fine_id INT AUTO_INCREMENT PRIMARY KEY,
+  overdue_days INT NOT NULL DEFAULT 0,
+  fee_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00
+) ENGINE=InnoDB;
+CREATE TABLE returns_notes (
+  note_id INT AUTO_INCREMENT PRIMARY KEY,
+  damaged_clothes VARCHAR(200),
+  wrong_size VARCHAR(200),
+  customer_order_id INT NULL,
+  CONSTRAINT fk_returns_notes_orders
+    FOREIGN KEY (customer_order_id) REFERENCES orders(order_id)
+) ENGINE=InnoDB;
+-- =====================================================
+-- SAMPLE DATA
+-- =====================================================
+INSERT INTO categories (name, description) VALUES
+('T-Shirts', 'Organic and recycled cotton T-shirts'),
+('Pants', 'Sustainable trousers and jeans'),
+('Dresses', 'Eco-friendly dresses'),
+('Accessories', 'Accessories made from recycled materials'),
+('Coats', 'Coats and jackets made with recycled materials');
+INSERT INTO suppliers (company_name, country_of_origin, contact_email, phone, environmental_certification, sustainability_rating, active) VALUES
+('GreenFiber Textiles', 'Portugal', 'contact@greenfiber.pt', '211234567', 'GOTS', 9.2, 1),
+('ReciclaTex', 'Spain', 'info@reciclatex.es', '341234567', 'GRS', 8.7, 1),
+('EcoThread Co.', 'India', 'sales@ecothread.in', '911234567', 'OEKO-TEX', 8.0, 1),
+('Nordic ReWool', 'Sweden', 'hello@nordicrewool.se', '461234567', 'GRS', 9.0, 1),
+('Fibra Verde Brasil', 'Brazil', 'contato@fibraverde.com.br', '551234567', 'OEKO-TEX', 7.8, 1);
+INSERT INTO materials (supplier_id, name, origin_type, recycled_percentage, unit_cost_per_kg, carbon_footprint_kg_co2) VALUES
+(1, 'Recycled organic cotton', 'post-consumer', 95.00, 4.50, 1.200),
+(2, 'Recycled PET (polyester)', 'post-consumer', 100.00, 3.20, 0.850),
+(3, 'Recycled wool', 'post-industrial', 80.00, 6.10, 1.500),
+(4, 'Recycled merino wool', 'post-consumer', 90.00, 7.30, 1.100),
+(5, 'Recycled bamboo fiber', 'post-industrial', 85.00, 3.90, 0.700),
+(2, 'Recycled nylon (ECONYL)', 'post-consumer', 100.00, 5.80, 0.950),
+(1, 'Organic linen', 'post-industrial', 70.00, 5.20, 1.000);
+INSERT INTO products (category_id, name, description, size, color, price, stock, carbon_footprint_kg_co2, active) VALUES
+(1, 'Basic Organic T-Shirt', 'Organic cotton T-shirt, unisex cut', 'M', 'White', 19.90, 120, 2.100, 1),
+(1, 'Eco Printed T-Shirt', 'T-shirt with natural ink print', 'S', 'Green', 22.90, 85, 2.300, 1),
+(2, 'Sustainable Chino Pants', 'Chino pants made from recycled cotton and elastane', 'L', 'Beige', 45.00, 60, 3.800, 1),
+(2, 'Recycled Denim Slim Jeans', 'Jeans made from post-consumer recycled denim', 'M', 'Blue', 59.90, 40, 4.200, 1),
+(3, 'Summer Linen Dress', 'Light dress made from organic linen', 'S', 'Yellow', 39.90, 30, 2.900, 1),
+(4, 'ECONYL Backpack', 'Backpack made from recycled nylon ECONYL', 'One Size', 'Black', 34.90, 50, 2.000, 1),
+(5, 'Recycled Wool Coat', 'Warm coat made from recycled merino wool', 'L', 'Gray', 79.90, 25, 5.500, 1);
+INSERT INTO product_material (product_id, material_id, percentage_in_product) VALUES
+(1, 1, 100.00),
+(2, 1, 90.00),
+(2, 7, 10.00),
+(3, 2, 60.00),
+(3, 1, 40.00),
+(4, 2, 100.00),
+(5, 7, 100.00),
+(6, 6, 100.00),
+(7, 4, 100.00);
+INSERT INTO clothing (product_id, clothing_name, production_city, characteristics) VALUES
+(1, 'Basic Organic T-Shirt', 'Braga', 'Cotton organic, lightweight and comfortable'),
+(2, 'Eco Printed T-Shirt', 'Porto', 'Recycled fabric with natural ink'),
+(3, 'Sustainable Chino Pants', 'Lisbon', 'Straight cut and eco finish'),
+(4, 'Recycled Denim Slim Jeans', 'Guimarães', 'Post-consumer recycled denim'),
+(5, 'Summer Linen Dress', 'Coimbra', 'Light, fresh, and biodegradable'),
+(6, 'ECONYL Backpack', 'Viseu', 'Water-resistant recycled nylon'),
+(7, 'Recycled Wool Coat', 'Aveiro', 'Warm and made with reused wool');
+INSERT INTO stock_status (quality, quantity) VALUES
+('Excellent', 12),
+('Very Good', 8),
+('Good', 20),
+('Average', 5),
+('Premium', 14);
+INSERT INTO recycled_items (defects, quality_label) VALUES
+(0, 'Excellent'),
+(1, 'Very Good'),
+(0, 'Excellent'),
+(2, 'Good'),
+(1, 'Good'),
+(0, 'Premium'),
+(3, 'Average'),
+(1, 'Very Good'),
+(0, 'Excellent'),
+(2, 'Good');
+INSERT INTO customers (name, email, phone, nif, birth_date, active) VALUES
+('Mariana Costa', 'mariana.costa@email.com', '912345678', '234567890', '1992-04-15', 1),
+('João Pereira', 'joao.pereira@email.com', '913456789', '234567891', '1988-11-02', 1),
+('Beatriz Santos', 'beatriz.santos@email.com', '914567890', '234567892', '1995-07-23', 1),
+('Ricardo Almeida', 'ricardo.almeida@email.com', '915678901', '234567893', '1990-01-30', 1),
+('Sofia Rodrigues', 'sofia.rodrigues@email.com', '916789012', '234567894', '1998-09-12', 1);
+INSERT INTO addresses (customer_id, address_type, street, city, postal_code, country, is_primary) VALUES
+(1, 'shipping', 'Rua das Flores, 123', 'Lisbon', '1000-100', 'Portugal', 1),
+(2, 'shipping', 'Avenida da Liberdade, 45', 'Lisbon', '1250-096', 'Portugal', 1),
+(3, 'shipping', 'Rua do Comércio, 78', 'Porto', '4000-123', 'Portugal', 1),
+(4, 'shipping', 'Praça da República, 12', 'Coimbra', '3000-300', 'Portugal', 1),
+(5, 'shipping', 'Rua Nova, 56', 'Braga', '4700-000', 'Portugal', 1),
+(1, 'billing', 'Rua das Flores, 123', 'Lisbon', '1000-100', 'Portugal', 0);
+INSERT INTO carriers (name, carbon_neutral, compensation_program, average_shipping_cost) VALUES
+('EcoDelivery Express', 1, 'Reforestation in the Amazon', 4.90),
+('GreenLog Portugal', 1, 'Certified carbon credits', 3.50),
+('CTT Standard', 0, NULL, 3.90),
+('BikeCargo Urban', 1, '100% electric bicycle deliveries', 2.50);
+INSERT INTO orders (customer_id, address_id, status, total_value) VALUES
+(1, 1, 'delivered', 39.80),
+(2, 2, 'shipped', 45.00),
+(3, 3, 'paid', 79.90),
+(4, 4, 'preparing', 94.80),
+(5, 5, 'cancelled', 22.90);
+INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES
+(1, 1, 2, 19.90),
+(2, 3, 1, 45.00),
+(3, 7, 1, 79.90),
+(4, 4, 1, 59.90),
+(4, 6, 1, 34.90),
+(5, 2, 1, 22.90);
+INSERT INTO deliveries (order_id, carrier_id, tracking_code, shipping_date, expected_delivery_date, actual_delivery_date, delivery_status, carbon_footprint_kg_co2, carbon_compensated_kg) VALUES
+(1, 1, 'ECO-PT-000123', '2026-06-20 10:00:00', '2026-06-23', '2026-06-22 15:30:00', 'delivered', 1.200, 1.200),
+(2, 2, 'GRN-PT-000456', '2026-06-27 09:00:00', '2026-06-30', NULL, 'on_the_way', 0.900, 0.900),
+(3, 4, 'BIKE-PT-000789', '2026-06-29 08:00:00', '2026-07-01', NULL, 'preparing', 0.300, 0.300),
+(4, 3, 'CTT-000321', NULL, '2026-07-05', NULL, 'preparing', 2.100, 0.000);
+INSERT INTO payments (order_id, method, amount, status) VALUES
+(1, 'mbway', 39.80, 'approved'),
+(2, 'credit_card', 45.00, 'approved'),
+(3, 'paypal', 79.90, 'approved'),
+(4, 'credit_card', 94.80, 'approved'),
+(5, 'mbway', 22.90, 'refunded');
+INSERT INTO returns_table (order_item_id, reason, description, status, refund_amount, resolved_at) VALUES
+(6, 'wrong_size', 'Customer ordered size S but the fit was too large', 'refunded', 22.90, '2026-06-29 14:00:00'),
+(2, 'did_not_like_it', 'Color was different from expected', 'under_review', NULL, NULL);
+INSERT INTO loan_records (overdue_days, days_in_use, paid) VALUES
+(0, 15, 1),
+(3, 20, 0),
+(1, 7, 1),
+(5, 30, 0),
+(2, 12, 0);
+INSERT INTO physical_loans (value, duration) VALUES
+(10.00, '7 days'),
+(15.00, '15 days'),
+(20.00, '30 days'),
+(12.00, '10 days'),
+(18.00, '20 days');
+INSERT INTO fines (overdue_days, fee_amount) VALUES
+(1, 5.00),
+(2, 10.00),
+(3, 15.00),
+(4, 20.00),
+(5, 25.00);
+INSERT INTO returns_notes (damaged_clothes, wrong_size, customer_order_id) VALUES
+('Loose side seam', 'Size M was too small', 1),
+('Stain on fabric', 'Size G was too large', 2),
+('Broken button', 'Size P was too tight', 3),
+('Stuck zipper', 'Size M was too short', 4),
+('Fabric peeling', 'Size GG was too loose', 5);
+-- =====================================================
+-- TRIGGERS
+-- =====================================================
+DELIMITER $$
+DROP TRIGGER IF EXISTS trg_order_items_before_insert $$
+CREATE TRIGGER trg_order_items_before_insert
+BEFORE INSERT ON order_items
+FOR EACH ROW
+BEGIN
+  DECLARE v_stock INT;
+  DECLARE v_price DECIMAL(10,2);
+  SELECT stock, price
+    INTO v_stock, v_price
+  FROM products
+  WHERE product_id = NEW.product_id;
+  IF v_stock IS NULL THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Product not found';
+  END IF;
+  IF NEW.quantity <= 0 THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Invalid quantity';
+  END IF;
+  IF v_stock < NEW.quantity THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Insufficient stock';
+  END IF;
+  IF NEW.unit_price IS NULL OR NEW.unit_price = 0 THEN
+    SET NEW.unit_price = v_price;
+  END IF;
+END $$
+DROP TRIGGER IF EXISTS trg_order_items_after_insert $$
+CREATE TRIGGER trg_order_items_after_insert
+AFTER INSERT ON order_items
+FOR EACH ROW
+BEGIN
+  UPDATE products
+  SET stock = stock - NEW.quantity
+  WHERE product_id = NEW.product_id;
+  UPDATE orders
+  SET total_value = (
+    SELECT COALESCE(SUM(quantity * unit_price), 0)
+    FROM order_items
+    WHERE order_id = NEW.order_id
+  )
+  WHERE order_id = NEW.order_id;
+END $$
+DROP TRIGGER IF EXISTS trg_order_items_after_delete $$
+CREATE TRIGGER trg_order_items_after_delete
+AFTER DELETE ON order_items
+FOR EACH ROW
+BEGIN
+  UPDATE products
+  SET stock = stock + OLD.quantity
+  WHERE product_id = OLD.product_id;
+  UPDATE orders
+  SET total_value = (
+    SELECT COALESCE(SUM(quantity * unit_price), 0)
+    FROM order_items
+    WHERE order_id = OLD.order_id
+  )
+  WHERE order_id = OLD.order_id;
+END $$
+DROP TRIGGER IF EXISTS trg_order_items_after_update $$
+CREATE TRIGGER trg_order_items_after_update
+AFTER UPDATE ON order_items
+FOR EACH ROW
+BEGIN
+  IF OLD.product_id <> NEW.product_id THEN
+    UPDATE products
+    SET stock = stock + OLD.quantity
+    WHERE product_id = OLD.product_id;
+    UPDATE products
+    SET stock = stock - NEW.quantity
+    WHERE product_id = NEW.product_id;
+  ELSE
+    UPDATE products
+    SET stock = stock + OLD.quantity - NEW.quantity
+    WHERE product_id = NEW.product_id;
+  END IF;
+  UPDATE orders
+  SET total_value = (
+    SELECT COALESCE(SUM(quantity * unit_price), 0)
+    FROM order_items
+    WHERE order_id = NEW.order_id
+  )
+  WHERE order_id = NEW.order_id;
+END $$
+DELIMITER ;
